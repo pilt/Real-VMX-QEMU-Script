@@ -23,3 +23,5 @@ To create an image in the current directory, run:
 This will create a 32 MiB image stored in `real-vmx.img'. Read the
 script to get a hint on how to rebuild Real VMX and put a new kernel in
 the image.
+
+The script has only been tested in Linux.
