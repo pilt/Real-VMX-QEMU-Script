@@ -47,13 +47,12 @@ echo Done.
 
 qemu-img create real-vmx.img 32M
 mkdir root floppy
-TEMPSCRIPT=`mktemp`
-chmod +x $TEMPSCRIPT
-cat > $TEMPSCRIPT <<EOSCRIPT
-#! /usr/bin/env bash
+
+echo -n 'Must become root for a while. '
+su -c"
 LODEVICE=\`losetup -f\`
 losetup \$LODEVICE real-vmx.img
-echo -n "Configuring disk image... "
+echo -n 'Configuring disk image... '
 fdisk -u -S63 -H16 \$LODEVICE 1>/dev/null 2>&1 <<EOF
 n
 p
@@ -88,13 +87,8 @@ pushd vmx/src/build/i386 1>/dev/null
 cp vmx ../../../../root/
 popd 1>/dev/null
 umount root floppy
-echo Done.
-EOSCRIPT
-
-echo -n 'Must become root for a while. '
-su -c"$TEMPSCRIPT"
+echo Done."
 RET=$?
-rm $TEMPSCRIPT
 rm -r root floppy
 if [ $RET -ne 0 ]; then
     exit 1
