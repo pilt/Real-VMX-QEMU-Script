@@ -2,6 +2,13 @@
 GRUB_VERSION=0.97
 REALVMX_VERSION=0.1.4
 
+cat <<EOF
+    This script is distributed on an "as is" basis and does NOT provide
+    any warranty whatsoever. This includes, without limitation, all
+    warranties of merchantability or fitness for a particular purpose,
+    or another warranty, whether express or implied.
+
+EOF
 echo -n "Looking for needed programs... "
 if [ "x`uname`" != xLinux ]; then
     echo Failed!
