@@ -1,0 +1,112 @@
+#! /bin/sh
+GRUB_VERSION=0.97
+REALVMX_VERSION=0.1.4
+
+echo -n "Looking for needed programs... "
+if [ "x`uname`" != xLinux ]; then
+    echo Failed!
+    echo This script has only been tested in Linux.
+    exit 1
+fi
+for prog in wget make qemu qemu-img fdisk; do
+    which $prog 1>/dev/null 2>&1
+    if [ $? -ne 0 ]; then
+        echo Failed!
+        echo $prog not found.
+        exit 1
+    fi
+done
+echo Done.
+
+echo -n "Downloading sources and GRUB... "
+wget ftp://alpha.gnu.org/gnu/grub/grub-$GRUB_VERSION-i386-pc.ext2fs \
+    http://downloads.sourceforge.net/project/vmx/Real%20VMX/$REALVMX_VERSION/vmx-$REALVMX_VERSION.tar.gz 1>/dev/null 2>&1
+if [ $? -ne 0 ]; then
+    echo Failed!
+    exit 1
+fi
+echo Done.
+
+echo -n "Unpacking and building sources... "
+tar xzf vmx-0.1.4.tar.gz 
+pushd vmx/src/build/i386 1>/dev/null
+make VMX_BASE=../../.. 1>/dev/null 2>&1
+if [ $? -ne 0 ]; then
+    echo Failed!
+    exit 1
+fi
+popd 1>/dev/null
+echo Done.
+
+qemu-img create real-vmx.img 32M
+mkdir root floppy
+TEMPSCRIPT=`mktemp`
+chmod +x $TEMPSCRIPT
+cat > $TEMPSCRIPT <<EOSCRIPT
+#! /bin/sh
+losetup /dev/loop0 real-vmx.img
+echo -n "Configuring disk image... "
+fdisk -u -S63 -H16 /dev/loop0 1>/dev/null 2>&1 <<EOF
+n
+p
+1
+
+
+a
+1
+p
+w
+EOF
+losetup -d /dev/loop0
+losetup -o 32256 /dev/loop0 real-vmx.img
+mkfs -t ext2 /dev/loop0 1>/dev/null 2>&1
+RET=\$?
+losetup -d /dev/loop0
+if [ \$RET -ne 0 ]; then
+    echo Failed!
+    echo mkfs failed.
+    exit 1
+fi
+mount -t ext2 -o loop,offset=32256 real-vmx.img root
+mount -t ext2 -o loop grub-0.97-i386-pc.ext2fs floppy 
+cp -r floppy/boot root
+cat > root/boot/grub/menu.lst <<EOF
+timeout 0
+title Real VMX 
+rootnoverify (hd0,0)
+kernel --type=netbsd /vmx
+EOF
+pushd vmx/src/build/i386 1>/dev/null
+cp vmx ../../../../root/
+popd 1>/dev/null
+umount root floppy
+echo Done.
+EOSCRIPT
+
+echo -n 'Must become root for a while. '
+su -c"$TEMPSCRIPT"
+RET=$?
+rm $TEMPSCRIPT
+rm -r root floppy
+if [ $RET -ne 0 ]; then
+    exit 1
+fi
+
+cat <<EOF
+
+Install GRUB. In the QEMU window, enter the following commands:
+
+    root (hd0,0)
+    setup (hd0)
+    halt
+
+EOF
+qemu -hda real-vmx.img -fda grub-0.97-i386-pc.ext2fs -boot a
+
+cat <<EOF
+Now let's test that the Real VMX guest works. You should see a blue 
+screen with some options. This program can be found in 
+\`vmx/src/build/all/usrConfig.c'.
+
+EOF
+qemu -hda real-vmx.img -boot c
