@@ -1,6 +1,25 @@
+ABOUT
+=====
+A script for people who want to develop for Real VMX, a VxWorks-like
+operating system kernel. The script installs ext2, GRUB, and a vanilla
+kernel to a small (32 MiB) QEMU image.
+
+Some features of Real VMX:
+
+    * Priority-based multitasking and round robin scheduling
+    * Partition-based memory management
+    * Binary, counting, and mutex semaphores with priority-inheritance
+    * Message queues for inter-process communication
+    * Virtual memory
+
+Real VMX is licensed under the LGPL.
+
+USAGE
+=====
 To create an image in the current directory, run:
 
     $ ./setup-vmx
 
-This will create a 32 MiB image stored in `real-vmx.img'. Read the script
-to get a hint on how to rebuild Real VMX and put a new kernel in the image.
+This will create a 32 MiB image stored in `real-vmx.img'. Read the
+script to get a hint on how to rebuild Real VMX and put a new kernel in
+the image.
