@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /usr/bin/env bash
 GRUB_VERSION=0.97
 REALVMX_VERSION=0.1.4
 
@@ -50,7 +50,7 @@ mkdir root floppy
 TEMPSCRIPT=`mktemp`
 chmod +x $TEMPSCRIPT
 cat > $TEMPSCRIPT <<EOSCRIPT
-#! /bin/sh
+#! /usr/bin/env bash
 LODEVICE=\`losetup -f\`
 losetup \$LODEVICE real-vmx.img
 echo -n "Configuring disk image... "
