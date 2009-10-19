@@ -51,9 +51,10 @@ TEMPSCRIPT=`mktemp`
 chmod +x $TEMPSCRIPT
 cat > $TEMPSCRIPT <<EOSCRIPT
 #! /bin/sh
-losetup /dev/loop0 real-vmx.img
+LODEVICE=\`losetup -f\`
+losetup \$LODEVICE real-vmx.img
 echo -n "Configuring disk image... "
-fdisk -u -S63 -H16 /dev/loop0 1>/dev/null 2>&1 <<EOF
+fdisk -u -S63 -H16 \$LODEVICE 1>/dev/null 2>&1 <<EOF
 n
 p
 1
@@ -64,11 +65,11 @@ a
 p
 w
 EOF
-losetup -d /dev/loop0
-losetup -o 32256 /dev/loop0 real-vmx.img
-mkfs -t ext2 /dev/loop0 1>/dev/null 2>&1
+losetup -d \$LODEVICE
+losetup -o 32256 \$LODEVICE real-vmx.img
+mkfs -t ext2 \$LODEVICE 1>/dev/null 2>&1
 RET=\$?
-losetup -d /dev/loop0
+losetup -d \$LODEVICE
 if [ \$RET -ne 0 ]; then
     echo Failed!
     echo mkfs failed.
