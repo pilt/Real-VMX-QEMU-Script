@@ -24,4 +24,12 @@ This will create a 32 MiB image stored in `real-vmx.img'. Read the
 script to get a hint on how to rebuild Real VMX and put a new kernel in
 the image.
 
-The script has only been tested in Linux.
+When you have done some changes and want to try your new kernel out, run:
+
+    $ ./install-kernel
+
+Note that the `install-kernel' script looks for a QEMU image and new
+kernel relative to where the script is located (`dirname $0'), and not
+relative to from where it was called.
+
+The scripts have only been tested in Linux.
