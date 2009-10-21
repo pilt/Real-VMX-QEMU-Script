@@ -83,9 +83,7 @@ title Real VMX
 rootnoverify (hd0,0)
 kernel --type=netbsd /vmx
 EOF
-pushd vmx/src/build/i386 1>/dev/null
-cp vmx ../../../../root/
-popd 1>/dev/null
+cp vmx/src/build/i386/vmx root/
 umount root floppy
 echo Done."
 RET=$?
