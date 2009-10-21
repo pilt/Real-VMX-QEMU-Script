@@ -1,0 +1,38 @@
+#! /usr/bin/env bash
+
+SCRIPT_PATH=`dirname $0`
+KERNEL=$SCRIPT_PATH/vmx/src/build/i386/vmx
+IMG_MP=$SCRIPT_PATH/root
+IMAGE=$SCRIPT_PATH/real-vmx.img
+
+if [ ! -f $KERNEL ]; then
+    echo "Could not find kernel ($KERNEL)."
+    exit 1
+fi
+
+if [ ! -f $IMAGE ]; then
+    echo "Could not find QEMU image ($IMAGE)."
+    exit 1
+fi
+
+mkdir $IMG_MP 2>&1
+if [ $? -ne 0 ]; then
+    exit 1
+fi
+
+if [ `id -u` -ne 0 ]; then
+    echo -n 'Must become root. '
+fi
+su -c"
+echo -n 'Installing kernel to image... '
+mount -t ext2 -o loop,offset=32256 $IMAGE $IMG_MP 1>/dev/null 2>&1
+if [ $? -ne 0 ]; then
+    echo Failed.
+    echo Could not mount.
+    exit 1
+fi
+cp $KERNEL $IMG_MP/
+umount $IMG_MP
+echo Done.
+"
+rm -r $IMG_MP
